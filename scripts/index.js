@@ -1,5 +1,5 @@
 // Темплейт карточки
-const cardsContainer = document.querySelector(('.places__list'));
+const cardsContainer = document.querySelector('.places__list');
 const card = document.querySelector('#card-template').content;
 
 // DOM узлы
@@ -20,8 +20,8 @@ function addCard (cardData) {
     cardsContainer.append(createCard(cardData, deleteCard))
 }
 // Функция удаления карточки
-function deleteCard (CardElement) {
-    CardElement.remove()
+function deleteCard (cardElement) {
+    cardElement.remove()
 }
 //  Вывести карточки на страницу
 initialCards.forEach(elem =>addCard(elem))
