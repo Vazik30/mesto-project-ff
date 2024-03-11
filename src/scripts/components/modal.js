@@ -1,21 +1,22 @@
 
-function openModal(modal, closeModal, closeBtnModal) {
+function openModal(modal, closeModal,closeBtnModal) {
     modal.classList.add('popup_is-opened','popup_is-animated');
     modal.querySelector('.popup__close').addEventListener('click', ()=>{
         closeModal(modal)
     })
-    document.addEventListener('keydown',closeBtnModal)
+    window.addEventListener('keydown',(evt)=> {
+        closeBtnModal(evt, modal)
+    })
 }
 
 function closeModal(popupElement){
     popupElement.classList.remove('popup_is-opened')
 }
 
-function closeBtnModal(evt) {
-    if(evt.key === 'Escape') {
-        const popup = document.querySelector('.popup');
-        closeModal(popup)
+function closeBtnModal(evt, popupElement) {
+    if(evt.key === "Escape") {
+        popupElement.classList.remove('popup_is-opened')
     }
 }
 
-export {openModal,closeModal}
+export {openModal,closeModal ,closeBtnModal}
