@@ -1,6 +1,6 @@
 
 function openModal(modal, closeModal,closeBtnModal) {
-    modal.classList.add('popup_is-opened','popup_is-animated');
+    modal.classList.add('popup_is-opened');
     modal.querySelector('.popup__close').addEventListener('click', ()=>{
         closeModal(modal)
     })

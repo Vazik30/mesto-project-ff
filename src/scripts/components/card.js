@@ -1,14 +1,17 @@
 import {openModal, closeModal, closeBtnModal} from "./modal";
+import {likeCard} from "./like";
+import {deleteCard} from "./deletCard";
 
 // Темплейт карточки
 const cardsContainer = document.querySelector('.places__list');
 const card = document.querySelector('#card-template').content;
 
 // DOM узлы
-function createCard (cardData, deleteCard) {
+function createCard (cardData, deleteCard, likeCard) {
     const cardImage = card.querySelector('.card__image');
     const cardTitle = card.querySelector('.card__title');
     const popupTypeImage = document.querySelector('.popup_type_image');
+    const cardLikeButton = card.querySelector('.card__like-button')
     //добавление данных для карточки
     cardTitle.textContent = cardData.name;
     cardImage.src = cardData.link;
@@ -29,6 +32,8 @@ function createCard (cardData, deleteCard) {
         }
     });
 
+    cardElement.querySelector('.card__like-button').addEventListener('click',likeCard)
+
     //удаление карточки
     cardElement.querySelector('.card__delete-button').addEventListener('click', () => {
         deleteCard(cardElement)
@@ -37,11 +42,23 @@ function createCard (cardData, deleteCard) {
 }
 // Функция создания карточки
 function addCard (cardData) {
-    cardsContainer.append(createCard(cardData, deleteCard))
-}
-// Функция удаления карточки
-function deleteCard (cardElement) {
-    cardElement.remove()
+    cardsContainer.append(createCard(cardData, deleteCard, likeCard))
 }
 
-export {createCard,deleteCard,addCard}
+const formElementNewPlace = document.querySelector('.popup__form[name="new-place"]');
+const popupInputTypeCardName = document.querySelector('.popup__input_type_card-name');
+const popupInputTypeUrl = document.querySelector('.popup__input_type_url')
+
+function creatNewCard(evt, modal){
+    evt.preventDefault();
+    const cardData = {
+        name: popupInputTypeCardName.value,
+        link: popupInputTypeUrl.value
+    }
+    const newCard = createCard(cardData, deleteCard, likeCard);
+    cardsContainer.prepend(newCard);
+    formElementNewPlace.reset();
+    closeModal(modal)
+}
+
+export {addCard, creatNewCard}
