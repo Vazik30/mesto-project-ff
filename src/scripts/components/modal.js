@@ -11,8 +11,8 @@ function closeModal(popupElement){
     popupElement.classList.remove('popup_is-opened');
     document.removeEventListener('keydown', handleEscape);
     popupElement.querySelector('.popup__close').removeEventListener('click', ()=>{
-        // closeModal(popupElement)
-        popupElement.classList.remove('popup_is-opened');
+        closeModal(popupElement)
+        // popupElement.classList.remove('popup_is-opened');
     });
 }
 
