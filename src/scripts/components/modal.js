@@ -1,22 +1,26 @@
 
-function openModal(modal, closeModal,closeBtnModal) {
+function openModal(modal) {
     modal.classList.add('popup_is-opened');
     modal.querySelector('.popup__close').addEventListener('click', ()=>{
         closeModal(modal)
-    })
-    window.addEventListener('keydown',(evt)=> {
-        closeBtnModal(evt, modal)
-    })
+    });
+    document.addEventListener('keydown',handleEscape);
 }
 
 function closeModal(popupElement){
-    popupElement.classList.remove('popup_is-opened')
+    popupElement.classList.remove('popup_is-opened');
+    document.removeEventListener('keydown', handleEscape);
+    popupElement.querySelector('.popup__close').removeEventListener('click', ()=>{
+        // closeModal(popupElement)
+        popupElement.classList.remove('popup_is-opened');
+    });
 }
 
-function closeBtnModal(evt, popupElement) {
+function handleEscape(evt) {
     if(evt.key === "Escape") {
-        popupElement.classList.remove('popup_is-opened')
+        const openedPopup = document.querySelector('.popup_is-opened')
+    closeModal(openedPopup)
     }
 }
 
-export {openModal,closeModal ,closeBtnModal}
+export {openModal,closeModal}
