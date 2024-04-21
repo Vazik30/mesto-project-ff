@@ -1,9 +1,8 @@
 import './pages/index.css';
-import {initialCards} from './scripts/cards.js';
 import {createCard, deleteCard, likeCard} from "./scripts/components/card";
 import {openModal, closeModal} from "./scripts/components/modal";
 import {enableValidation} from "./scripts/components/validation";
-import {getUserInfo} from "./scripts/components/api";
+import {getUserInfo, getCardList,sendUserProfile,sendNewCardServer} from "./scripts/components/api";
 //  Вывести карточки на страницу
 
 const popupEditProfile = document.querySelector('.popup_type_edit');
@@ -17,6 +16,7 @@ const formElementNewPlace = document.forms["new-place"];
 const popupInputTypeCardName = document.querySelector('.popup__input_type_card-name');
 const popupInputTypeUrl = document.querySelector('.popup__input_type_url');
 const cardsContainer = document.querySelector('.places__list');
+const popupSaveButton = document.querySelector('.popup__button');
 const formElementEditProfile = document.forms["edit-profile"];
 const nameInput = document.querySelector('.popup__input_type_name');
 const jobInput =  document.querySelector('.popup__input_type_description');
@@ -35,15 +35,20 @@ const config = {
     errorClass: 'popup__error_visible'
 }
 
-console.log(getUserInfo())
+Promise.all([getCardList(),getUserInfo()])
+    .then(([cards, userData]) =>{
+        userId = userData.id;
+        profileTitle.textContent = userData.name;
+        profileDescription.textContent = userData.about;
+        profileImage.style.backgroundImage = userData.avatar;
+        cards.forEach((data) =>{
+            const cardElement = createCard(data, deleteCard, likeCard, handleImageClick)
+            cardsContainer.prepend(cardElement)
+        });
+    })
+    .catch(err => console.log(err));
 
 enableValidation(config);
-
-function addCard (cardData) {
-    cardsContainer.append(createCard(cardData, deleteCard, likeCard, handleImageClick))
-}
-
-initialCards.forEach(elem =>addCard(elem))
 
 function handleImageClick(cardData) {
     popupCaption.textContent = cardData.name;
@@ -81,10 +86,27 @@ profileAddCard.addEventListener('click',()=>{
 //функция изменения формы
 function handleProfileFormSubmit(evt) {
     evt.preventDefault();
-    profileTitle.textContent = nameInput.value;
-    profileDescription.textContent = jobInput.value;
-    closeModal(popupEditProfile)
+    const valueNameInput = nameInput.value;
+    const valueJobInput = jobInput.value;
+    loadingDataSaving(popupSaveButton, true)
+    sendUserProfile(valueNameInput,valueJobInput).then(res=>{
+        profileTitle.textContent = nameInput.value;
+        profileDescription.textContent = jobInput.value;
+        closeModal(popupEditProfile)
+        }
+    )
+        .catch(err=> {console.log(err)})
+        .finally(()=>loadingDataSaving(popupSaveButton,false))
+
 }
+
+const loadingDataSaving = (button, loading) => {
+    if (loading) {
+        button.textContent = 'Сохранение...';
+    } else {
+        button.textContent = 'Сохранить';
+    }
+};
 
 formElementEditProfile.addEventListener('submit', handleProfileFormSubmit);
 
@@ -92,14 +114,23 @@ formElementEditProfile.addEventListener('submit', handleProfileFormSubmit);
 function creatNewCard(evt, modal){
     evt.preventDefault();
     enableValidation(config);
-    const cardData = {
-        name: popupInputTypeCardName.value,
-        link: popupInputTypeUrl.value
-    }
-    const newCard = createCard(cardData, deleteCard, likeCard, handleImageClick);
-    cardsContainer.prepend(newCard);
-    formElementNewPlace.reset();
-    closeModal(modal)
+    const cardName = popupInputTypeCardName.value;
+    const cardUrl = popupInputTypeUrl.value;
+    loadingDataSaving(popupSaveButton,true);
+    sendNewCardServer(cardName,cardUrl).then((cardData)=>{
+        const cardsData ={
+            name: popupInputTypeCardName.value,
+            link: popupInputTypeUrl.value,
+            alt: popupInputTypeCardName.value,
+            '_id': cardData['_id'],
+            owner: {_id: cardData.owner['_id']}
+        }
+        const cardElement = createCard(cardsData,deleteCard,likeCard,handleImageClick)
+        cardsContainer.prepend(cardElement);
+        formElementNewPlace.reset();
+        closeModal(modal)
+    })
+
 }
 
 formElementNewPlace.addEventListener('submit',(evt)=>{creatNewCard(evt, popupTypeCard)})

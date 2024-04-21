@@ -15,10 +15,16 @@ function createCard (cardData, deleteCard, likeCard, handleImageClick) {
     const elementCardImage = cardElement.querySelector('.card__image');
     const cardDeleteButton = cardElement.querySelector('.card__delete-button');
     const cardLikeButton = cardElement.querySelector('.card__like-button');
+    const cardId = cardData['_id']
+
     //popup изображения при клике на картинку
     elementCardImage.addEventListener('click',()=>{handleImageClick(cardData)});
     //лайк карточки
+    // if (cardData.owner['_id'] === userId){
     cardLikeButton.addEventListener('click',likeCard)
+    // } else {
+    //     cardDeleteButton.remove();
+
     //удаление карточки
     cardDeleteButton.addEventListener('click', () => {
         deleteCard(cardElement)
