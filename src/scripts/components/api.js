@@ -1,45 +1,82 @@
+import {checkResponse} from "../../utils/checkResponse";
+
+const config = {
+    baseUrl: 'https://nomoreparties.co/v1/wff-cohort-11',
+    headers: {
+        authorization: 'f4a40ea5-6a81-4724-87f7-1839e7889f75',
+        'Content-Type': 'application/json',
+    },
+};
+
+
 function getUserInfo(){
-    return fetch('https://mesto.nomoreparties.co/v1/wff-cohort-11/users/me',{
+    return fetch(`${config.baseUrl}/users/me`,{
         method: 'GET',
-        headers:{
-            authorization: 'f4a40ea5-6a81-4724-87f7-1839e7889f75'
-        }
+        headers:config.headers
     })
-        .then(res => res.json())
+        .then(checkResponse)
+
 }
 
 function getCardList() {
-    return fetch('https://nomoreparties.co/v1/wff-cohort-11/cards',
+    return fetch(`${config.baseUrl}/cards`,
         {method:'GET',
-            headers:{
-            authorization: 'f4a40ea5-6a81-4724-87f7-1839e7889f75'
-            }
+            headers:config.headers
         })
-        .then(res => res.json())
+        .then(checkResponse)
 }
 
 function sendUserProfile() {
-    return fetch('https://mesto.nomoreparties.co/v1/wff-cohort-11/users/me', {
+    return fetch(`${config.baseUrl}/users/me`, {
         method: 'PATCH',
-        headers:{
-            authorization: 'f4a40ea5-6a81-4724-87f7-1839e7889f75',
-            'Content-Type': 'application/json'
-        }
-    }).then(res=>res.json())
+        headers:config.headers
+    })
+        .then(checkResponse)
 }
 
 function sendNewCardServer(cardName,cardUrl){
-    return fetch('https://nomoreparties.co/v1/wff-cohort-11/cards',{
+    return fetch(`${config.baseUrl}/cards`,{
         method: 'POST',
-        headers:{
-            authorization: 'f4a40ea5-6a81-4724-87f7-1839e7889f75',
-            'Content-Type': 'application/json',
-            body:{
+        headers:config.headers,
+            body: JSON.stringify({
                 name:cardName,
                 link:cardUrl,
-            }
-        }
-    }).then(res=>res.json())
+            })
+        })
+        .then(checkResponse)
 }
 
-export {getUserInfo,getCardList,sendUserProfile,sendNewCardServer}
+function addLike(cardId, likeCountElement, likeButtonElement) {
+    return fetch(`${config.baseUrl}/cards/likes/${cardId}`,{
+        method:'PUT',
+        headers:config.headers
+    })
+        .then(checkResponse)
+}
+
+function deleteLike(cardId, likeCountElement, likeButtonElement) {
+    return fetch(`${config.baseUrl}/cards/likes/${cardId}`,{
+        method:'DELETE',
+        headers:config.headers
+    })
+        .then(checkResponse)
+}
+
+function deleteCard(cardId) {
+    return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
+        method:'DELETE',
+        headers:config.headers
+    })
+        .then(checkResponse)
+}
+
+function changeAvatar(avatarLink) {
+    return fetch(`${config.baseUrl}/users/me/${avatarLink}`,{
+        method:'PATCH',
+        headers:config.headers
+    })
+        .then(checkResponse)
+}
+
+
+export {getUserInfo, getCardList, sendUserProfile, sendNewCardServer, addLike, deleteLike, deleteCard, changeAvatar}

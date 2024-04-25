@@ -4,8 +4,8 @@
 const showInputError = (formElement, inputElement, inputErrorClass, errorClass, errorMessage) => {
     const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
     inputElement.classList.add(inputErrorClass);
-    errorElement.textContent = errorMessage;
     errorElement.classList.add(errorClass);
+    errorElement.textContent = errorMessage;
 };
 
 
@@ -90,4 +90,4 @@ const disableValidation = (formElement, config) => {
     });
 };
 
-export {enableValidation}
+export {enableValidation, disableValidation}
