@@ -25,6 +25,7 @@ const popupTypeImage = document.querySelector('.popup_type_image');
 const popupCaption = document.querySelector('.popup__caption');
 const popupImage = document.querySelector('.popup__image');
 const popupDeleteCard = document.querySelector('.popup_delete_card');
+const popupDeleteButton = popupDeleteCard.querySelector('.popup__button-delete_card')
 const popups = document.querySelectorAll('.popup');
 const popupTypeUpdateYourAvatar = document.querySelector('.popup_type_update_user_avatar');
 const avatarLink = popupTypeUpdateYourAvatar.querySelector('.popup__input_type_url-avatar');
@@ -212,21 +213,24 @@ popupTypeUpdateYourAvatar.addEventListener('submit', saveFormTypeAvatar)
 let card = {};
 
 // Открытие модального окна с карточкой
-export const openDeleteModalCard = ({ cardId, cardElement }) => {
+const openDeleteModalCard = ({ cardId, cardElement }) => {
     card.cardId = cardId;
     card.cardElement = cardElement;
     openModal(popupDeleteCard);
 }
 
-popupDeleteCard.addEventListener('click', ()=>{
+popupDeleteButton.addEventListener('click', ()=>{
     deleteCard(card.cardId).then(()=>{
         card.cardElement.remove();
         closeModal(popupDeleteCard);
-        card = {cardElement:null, cardId:null};
+        card = {};
     })
+        .catch(err => console.log(err))
 })
 
-export const deleteMyCard = (cardId) => {
-    deleteCard(cardId);
-    document.getElementById(cardId).remove()
-}
+enableValidation(config);
+
+// export const deleteMyCard = (cardId) => {
+//     deleteCard(cardId);
+//     document.getElementById(cardId).remove()
+// }

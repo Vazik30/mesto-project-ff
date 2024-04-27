@@ -67,7 +67,7 @@ function deleteLike(cardId, likeCountElement, likeButtonElement) {
 }
 
 function deleteCard(cardId) {
-    return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
+    return fetch(`${config.baseUrl}/cards/${cardId}`, {
         method:'DELETE',
         headers:config.headers
     })
