@@ -31,16 +31,16 @@ const checkInputValidity = (formElement, inputElement,inputErrorClass, errorClas
     }
 };
 
-const setEventListeners = (formElement, inputElement, submitButtonSelector, inactiveButtonClass, inputErrorClass, errorClass) => {
+const setEventListeners = (formElement, inputElement, submitButtonSelector, inputErrorClass, errorClass) => {
     const inputList = Array.from(formElement.querySelectorAll(inputElement));
     const buttonElement = formElement.querySelector(submitButtonSelector);
     // чтобы проверить состояние кнопки в самом начале
-    toggleButtonState(inputList, buttonElement,inactiveButtonClass);
+    toggleButtonState(inputList, buttonElement);
     inputList.forEach((inputElement) => {
         inputElement.addEventListener('input', function () {
             checkInputValidity(formElement, inputElement, inputErrorClass, errorClass);
             // чтобы проверять его при изменении любого из полей
-            toggleButtonState(inputList, buttonElement,inactiveButtonClass);
+            toggleButtonState(inputList, buttonElement);
         });
     });
 };
@@ -67,14 +67,8 @@ const hasInvalidInput = (inputList) => {
 }
 
 
-const toggleButtonState = (inputList, buttonElement, inactiveButtonClass) => {
-    if(hasInvalidInput(inputList)) {
-        buttonElement.disabled = true;
-        buttonElement.classList.add(inactiveButtonClass)
-    } else {
-        buttonElement.disabled = false;
-        buttonElement.classList.remove(inactiveButtonClass)
-    }
+const toggleButtonState = (inputList, buttonElement) => {
+    buttonElement.disabled = !!hasInvalidInput(inputList);
 }
 
 const disableValidation = (formElement, config) => {
@@ -82,7 +76,7 @@ const disableValidation = (formElement, config) => {
     const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
     const buttonElement = formElement.querySelector(config.submitButtonSelector);
 
-    toggleButtonState(inputList, buttonElement, config.inactiveButtonClass);
+    toggleButtonState(inputList, buttonElement);
 
     inputList.forEach((inputElement) => {
         hideInputError(formElement, inputElement, config.inputErrorClass, config.errorClass);

@@ -17,7 +17,6 @@ const formElementNewPlace = document.forms["new-place"];
 const popupInputTypeCardName = document.querySelector('.popup__input_type_card-name');
 const popupInputTypeUrl = document.querySelector('.popup__input_type_url');
 const cardsContainer = document.querySelector('.places__list');
-const popupSaveButton = document.querySelector('.popup__button');
 const buttonAddCard = document.querySelector('.popup__button-add-card');
 const formElementEditProfile = document.forms["edit-profile"];
 const nameInput = document.querySelector('.popup__input_type_name');
@@ -28,8 +27,7 @@ const popupImage = document.querySelector('.popup__image');
 const popupDeleteCard = document.querySelector('.popup_delete_card');
 const popups = document.querySelectorAll('.popup');
 const popupTypeUpdateYourAvatar = document.querySelector('.popup_type_update_user_avatar');
-const buttonSavingUserAvatar = popupTypeUpdateYourAvatar.querySelector('.popup__button');
-const userAvatar = popupTypeUpdateYourAvatar.querySelector('.popup__input_type_url-avatar');
+const avatarLink = popupTypeUpdateYourAvatar.querySelector('.popup__input_type_url-avatar');
 let userId = null;
 
 const config = {
@@ -46,16 +44,16 @@ Promise.all([getCardList(),getUserInfo()])
         userId = userData._id;
         profileTitle.textContent = userData.name;
         profileDescription.textContent = userData.about;
-        profileImage.style.backgroundImage = userData.avatar;
+        profileImage.style.backgroundImage = (`url(${userData.avatar})`);
         cards.forEach((data) =>{
-            const cardElement = createCard(data,userId, handleImageClick, popupDeleteCard, deleteCard)
+            const cardElement = createCard(data,userId, handleImageClick,toggleLikeCard, openDeleteModalCard)
             cardsContainer.prepend(cardElement)
         });
     })
     .catch(err => console.log(err));
 
 enableValidation(config);
-disableValidation(formElementEditProfile, config)
+disableValidation(popupEditProfile, config)
 
 function handleImageClick(cardData) {
     popupCaption.textContent = cardData.name;
@@ -66,13 +64,14 @@ function handleImageClick(cardData) {
 
 profileEdit.addEventListener('click', (event)=>{
     openModal(popupEditProfile);
+    disableValidation(popupEditProfile, config)
     getUserInfo().then((userData)=>{
         profileTitle.textContent = userData.name;
         profileDescription.textContent = userData.about;
     })
+        .catch(err=>console.log(err))
     nameInput.value = profileTitle.textContent;
     jobInput.value = profileDescription.textContent;
-    // profileImage.style.backgroundImage = ('url(' + userData.avatar + ')');
 });
 
 popups.forEach((popup) => {
@@ -88,6 +87,8 @@ popups.forEach((popup) => {
 
 profileAddCard.addEventListener('click',()=>{
     openModal(popupTypeCard)
+    formElementNewPlace.reset()
+    disableValidation(popupTypeCard,config)
 });
 
 //функция изменения формы
@@ -97,10 +98,10 @@ function handleProfileFormSubmit(evt) {
     const valueJobInput = jobInput.value;
     loadingDataSaving(buttonEditProfile, true)
     sendUserProfile(valueNameInput,valueJobInput).then(res=>{
-        profileTitle.textContent = nameInput.value;
-        profileDescription.textContent = jobInput.value;
+        profileTitle.textContent = res.name;
+        profileDescription.textContent = res.about;
         closeModal(popupEditProfile)
-        disableValidation(formElementEditProfile,enableValidation)
+        disableValidation(formElementEditProfile,config)
         }
     )
         .catch(err=> {console.log(err)})
@@ -124,7 +125,6 @@ function creatNewCard(evt, modal){
     enableValidation(config);
     const cardName = popupInputTypeCardName.value;
     const cardUrl = popupInputTypeUrl.value;
-    console.log(cardUrl)
     loadingDataSaving(buttonAddCard,true);
     sendNewCardServer(cardName,cardUrl)
         .then((cardData)=>{
@@ -133,20 +133,23 @@ function creatNewCard(evt, modal){
             link: cardUrl,
             alt: cardName,
             _id: cardData._id,
+            likes: [],
             owner: {_id: cardData.owner._id}
         }
-        const cardElement = createCard(cardsData, userId, handleImageClick, popupDeleteCard, deleteCard)
+        const cardElement = createCard(cardsData, userId, handleImageClick,toggleLikeCard, openDeleteModalCard)
         cardsContainer.prepend(cardElement);
         formElementNewPlace.reset();
-        loadingDataSaving(buttonAddCard,false);
         closeModal(modal);
         disableValidation(formElementEditProfile,config)
     })
         .catch(err=>console.log(err))
+        .finally(()=>loadingDataSaving(buttonAddCard,false))
 
 }
 
-formElementNewPlace.addEventListener('submit',(evt)=>{creatNewCard(evt, popupTypeCard)})
+formElementNewPlace.addEventListener('submit',(evt)=>{
+    creatNewCard(evt, popupTypeCard)
+})
 
 export function toggleLikeCard (cardId,likeCardElement, likeCounter) {
     const cardLike = likeCardElement.classList.contains('card__like-button_is-active');
@@ -156,6 +159,7 @@ export function toggleLikeCard (cardId,likeCardElement, likeCounter) {
             likeCardElement.classList.remove('card__like-button_is-active');
             likeCounter.textContent = res.likes.length;
         })
+            .catch(err=> console.log(err))
     } else {
         addLike(cardId).then((res)=>{
 
@@ -167,21 +171,62 @@ export function toggleLikeCard (cardId,likeCardElement, likeCounter) {
     }
 }
 
-function updateAvatar() {
-    const linkAvatar = userAvatar.value;
-
-    loadingDataSaving(buttonSavingUserAvatar, true);
-
-    changeAvatar(linkAvatar).then((res) => {
-        profileImage.style.backgroundImage = ('url(' + res.avatar + ')');
-        userAvatar.value = '';
-        closeModal(popupTypeUpdateYourAvatar);
-    })
-        .catch((error) => console.log(error))
-        .finally(() => loadingDataSaving(buttonSavingUserAvatar, false))
+function openAvatarModal () {
+    openModal(popupTypeUpdateYourAvatar);
+    avatarLink.value ='';
+    // popupTypeUpdateYourAvatar.reset();
+    disableValidation(popupTypeUpdateYourAvatar,config)
 }
 
-profileImage.addEventListener('click', () => openModal(popupTypeUpdateYourAvatar));
+function userAvatar (userData) {
+    getUserInfo(userData)
+        .then((userInfo)=>{
+            profileImage.style.backgroundImage = (`url(${userInfo.avatar})`);
+        })
+        .catch(err => console.log(err))
+}
 
-// Закрытие модального окна с изменением картинки профиля
-buttonSavingUserAvatar.addEventListener('click', updateAvatar);
+function saveFormTypeAvatar (event) {
+    event.preventDefault();
+    const link = avatarLink.value;
+
+    loadingDataSaving(popupTypeUpdateYourAvatar,true);
+
+    changeAvatar(link)
+        .then((userData)=> {
+            userAvatar(userData);
+            closeModal(popupTypeUpdateYourAvatar)
+        })
+        .catch(err => console.log(err))
+        .finally(()=>{
+            // popupTypeUpdateYourAvatar.reset();
+            loadingDataSaving(popupTypeUpdateYourAvatar,false);
+        })
+}
+
+profileImage.addEventListener('click', openAvatarModal);
+
+popupTypeUpdateYourAvatar.addEventListener('submit', saveFormTypeAvatar)
+
+// Карточка которую хотим удалить
+let card = {};
+
+// Открытие модального окна с карточкой
+export const openDeleteModalCard = ({ cardId, cardElement }) => {
+    card.cardId = cardId;
+    card.cardElement = cardElement;
+    openModal(popupDeleteCard);
+}
+
+popupDeleteCard.addEventListener('click', ()=>{
+    deleteCard(card.cardId).then(()=>{
+        card.cardElement.remove();
+        closeModal(popupDeleteCard);
+        card = {cardElement:null, cardId:null};
+    })
+})
+
+export const deleteMyCard = (cardId) => {
+    deleteCard(cardId);
+    document.getElementById(cardId).remove()
+}

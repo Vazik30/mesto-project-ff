@@ -6,6 +6,7 @@
 @import url('__image/profile__image.css');
 
 .profile {
+  position: relative;
   font-family: 'Inter', Arial, sans-serif;
   color: #fff;
   display: flex;

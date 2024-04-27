@@ -26,10 +26,14 @@ function getCardList() {
         .then(checkResponse)
 }
 
-function sendUserProfile() {
+function sendUserProfile(name, link) {
     return fetch(`${config.baseUrl}/users/me`, {
         method: 'PATCH',
-        headers:config.headers
+        headers:config.headers,
+        body: JSON.stringify({
+            name:name,
+            about: link
+        })
     })
         .then(checkResponse)
 }
@@ -70,10 +74,15 @@ function deleteCard(cardId) {
         .then(checkResponse)
 }
 
-function changeAvatar(avatarLink) {
-    return fetch(`${config.baseUrl}/users/me/${avatarLink}`,{
+function changeAvatar(avatar) {
+    return fetch(`${config.baseUrl}/users/me/avatar`,{
         method:'PATCH',
-        headers:config.headers
+        headers:config.headers,
+        body: JSON.stringify({
+            avatar: avatar
+            }
+
+        )
     })
         .then(checkResponse)
 }
