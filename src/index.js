@@ -179,7 +179,7 @@ function openAvatarModal () {
     disableValidation(popupTypeUpdateYourAvatar,config)
 }
 
-function userAvatar (userData) {
+function getUserAvatar (userData) {
     getUserInfo(userData)
         .then((userInfo)=>{
             profileImage.style.backgroundImage = (`url(${userInfo.avatar})`);
@@ -195,7 +195,7 @@ function saveFormTypeAvatar (event) {
 
     changeAvatar(link)
         .then((userData)=> {
-            userAvatar(userData);
+            getUserAvatar(userData);
             closeModal(popupTypeUpdateYourAvatar)
         })
         .catch(err => console.log(err))
@@ -229,8 +229,3 @@ popupDeleteButton.addEventListener('click', ()=>{
 })
 
 enableValidation(config);
-
-// export const deleteMyCard = (cardId) => {
-//     deleteCard(cardId);
-//     document.getElementById(cardId).remove()
-// }
